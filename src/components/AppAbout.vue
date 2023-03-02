@@ -16,7 +16,7 @@
       <div class="about__image">
         <figure>
           <img
-            :src="about.image.data.attributes.formats.thumbnail.url"
+            :src="base_url+about.image.data.attributes.formats.thumbnail.url"
             @error="$event.target.src=require(`@/assets/img/${image}`)"
             :alt="about.image.data.attributes.alternativeText"
           >
@@ -32,6 +32,7 @@ export default {
   data() {
     return {
       about: [],
+      base_url: process.env.VUE_APP_BACK_END_HOST,
       image: 'project.jpg', // Alternative image
       error: null,
       headers: { 'Content-Type': 'application/json' },
@@ -55,7 +56,7 @@ export default {
 
   async mounted() {
     try {
-      const response = await fetch('https://portfolio-lrgm.onrender.com/api/about?populate=*', {
+      const response = await fetch(`${this.base_url}/api/about?populate=*`, {
         method: 'GET',
         headers: this.headers,
       }).then(this.checkStatus)

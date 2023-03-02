@@ -72,7 +72,7 @@ export default {
 
   async mounted() {
     try {
-      const response = await fetch('https://portfolio-lrgm.onrender.com/api/experciences', {
+      const response = await fetch(`${process.env.VUE_APP_BACK_END_HOST}/api/experciences`, {
         method: 'GET',
         headers: this.headers,
       }).then(this.checkStatus)
