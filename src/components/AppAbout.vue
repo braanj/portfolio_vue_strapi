@@ -1,21 +1,25 @@
 <template>
   <section id="about" class="section section__about">
-    <h2 class="secondary__title section__counter">{{ title }}</h2>
+    <h2 class="secondary__title section__counter">{{ about.title }}</h2>
     <div class="about__content">
       <div class="about__text">
-        <p class="description__text" v-html="description"></p>
+        <p class="description__text" v-html="about.description"></p>
         <ul class="list__grid">
           <li
             class="list__grid-item"
-            v-for="(tech, index) in technologies"
+            v-for="(tech, index) in about.technologies.data"
             :key="index"
-          >{{ tech }}</li>
+          >{{ tech.attributes.name }}</li>
         </ul>
       </div>
 
       <div class="about__image">
         <figure>
-          <img :src="require(`@/assets/img/${image.url}`)" :alt="image.alt">
+          <img
+            :src="about.image.data.attributes.formats.thumbnail.url"
+            @error="$event.target.src=require(`@/assets/img/${image}`)"
+            :alt="about.image.data.attributes.alternativeText"
+          >
         </figure>
       </div>
     </div>
@@ -27,24 +31,39 @@ export default {
   name: 'AppAbout',
   data() {
     return {
-      title: 'About Me',
-      description: `
-        Hello! My name is John and I enjoy creating things that live on the internet. My interest in web
-        development started back in 2018 when I decided to try creating HTML pages - turns out hacking together a
-        custom reblog button taught me a lot about HTML & Css!
-        <br>
-        Fast-forward to today, and I've had the privilege of working at <span class="important__text">an
-          advertising agency</span>. My main focus these days is building accessible, inclusive products and
-        digital experiences at <span class="important__text">Novazeo</span> for a variety of clients.
-        <br>
-        Here are a few technologies I've working with recently:
-      `,
-      technologies: ['Javascript (ES6+)', 'React', 'Node.Js', 'TypeScript', 'Eleventy', 'WordPress'],
-      image: {
-        url: 'project.jpg',
-        alt: 'Alternative text',
-      },
+      about: [],
+      image: 'project.jpg', // Alternative image
+      error: null,
+      headers: { 'Content-Type': 'application/json' },
     };
+  },
+
+  methods: {
+    parseJSON(resp) {
+      return (resp.json ? resp.json() : resp);
+    },
+
+    checkStatus(resp) {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+      return this.parseJSON(resp).then((_resp) => {
+        throw _resp;
+      });
+    },
+  },
+
+  async mounted() {
+    try {
+      const response = await fetch('https://portfolio-lrgm.onrender.com/api/about?populate=*', {
+        method: 'GET',
+        headers: this.headers,
+      }).then(this.checkStatus)
+        .then(this.parseJSON);
+      this.about = response.data.attributes;
+    } catch (error) {
+      this.error = error;
+    }
   },
 };
 </script>

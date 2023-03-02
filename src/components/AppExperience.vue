@@ -13,23 +13,28 @@
       </nav>
 
       <div class="tabs__content">
-
         <div
           class="tabs__content-item"
           v-for="(experience, index) in experiences" :key="index"
-          :class="{ active: experience.tab === selectedTab }"
+          :class="{ active: experience.attributes.company === selectedTab }"
         >
-          <h3 class="third__title" v-html="experience.title"></h3>
-          <span class="sub__title">{{ experience.subtitle }}</span>
+          <h3 class="third__title">
+            {{ experience.attributes.title }}
+            <span class="important__text">@ {{ experience.attributes.company }}</span>
+          </h3>
+          <span class="sub__title">
+            {{ experience.attributes.date }}
+          </span>
+          <p class="description__text" v-html="experience.attributes.description"></p>
           <ul class="tasks">
             <li
             class="tasks-item"
-            v-for="(task, index) in experience.tasks"
+            v-for="
+            (task, index) in experience.attributes.tasks.split('\n')"
             :key="index"
-            >{{ task }}'</li>
+            >{{ task }}</li>
           </ul>
         </div>
-
       </div>
     </div>
   </section>
@@ -42,48 +47,43 @@ export default {
   data() {
     return {
       title: "Where I've Worked",
-      tabs: [
-        'Novazeo',
-        'Games',
-        'Devforyou',
-      ],
-
+      tabs: [],
       selectedTab: 'Novazeo',
-      experiences: [
-        {
-          tab: 'Novazeo',
-          title: 'Creative Technologist Co-op <span class="important__text">@Novazeo</span>',
-          subtitle: 'July - December 2019',
-          tasks: [
-            'Developed and maintained code for in-house and client websites primarily using HTML, CSS, Sass, Javascript, and Jquery.',
-            'Manully tested sites in various browsers and mobile devices to ensure cross-browser compatibility and responsiveness.',
-            'Clients included JetBlue, Lovesac, U.S. Cellular, U.S. Department of defense, and more.',
-          ],
-        },
-
-        {
-          tab: 'Games',
-          title: 'Creative Technologist Co-op <span class="important__text">@Yan Games Studio</span>',
-          subtitle: 'July - December 2019',
-          tasks: [
-            'Developed and maintained code for in-house and client websites primarily using HTML, CSS, Sass, Javascript, and Jquery.',
-            'Manully tested sites in various browsers and mobile devices to ensure cross-browser compatibility and responsiveness.',
-            'Clients included JetBlue, Lovesac, U.S. Cellular, U.S. Department of defense, and more.',
-          ],
-        },
-
-        {
-          tab: 'Devforyou',
-          title: 'Creative Technologist Co-op <span class="important__text">@ Devforyou</span>',
-          subtitle: 'July - December 2019',
-          tasks: [
-            'Developed and maintained code for in-house and client websites primarily using HTML, CSS, Sass, Javascript, and Jquery.',
-            'Manully tested sites in various browsers and mobile devices to ensure cross-browser compatibility and responsiveness.',
-            'Clients included JetBlue, Lovesac, U.S. Cellular, U.S. Department of defense, and more.',
-          ],
-        },
-      ],
+      experiences: [],
+      error: null,
+      headers: { 'Content-Type': 'application/json' },
     };
+  },
+
+  methods: {
+    parseJSON(resp) {
+      return (resp.json ? resp.json() : resp);
+    },
+
+    checkStatus(resp) {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+      return this.parseJSON(resp).then((_resp) => {
+        throw _resp;
+      });
+    },
+  },
+
+  async mounted() {
+    try {
+      const response = await fetch('https://portfolio-lrgm.onrender.com/api/experciences', {
+        method: 'GET',
+        headers: this.headers,
+      }).then(this.checkStatus)
+        .then(this.parseJSON);
+
+      this.experiences = response.data;
+      response.data.map((elem) => this.tabs.push(elem.attributes.company));
+      [this.selectedTab] = [this.tabs[0]];
+    } catch (error) {
+      this.error = error;
+    }
   },
 };
 </script>
@@ -122,6 +122,10 @@ export default {
         background-color: var(--hover-color);
       }
     }
+  }
+
+  .description__text {
+    max-width: 100%;
   }
 
   .tasks {
