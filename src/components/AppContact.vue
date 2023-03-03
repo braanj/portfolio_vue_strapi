@@ -6,7 +6,7 @@
     <p class="description__text" v-html="description"></p>
 
     <div class="button__container">
-      <button class="button">{{ cta }}</button>
+      <a :href="link" class="button">{{ cta }}</a>
     </div>
   </section>
 </template>
@@ -21,6 +21,7 @@ export default {
       subtitle: 'What\'s Next?',
       description: 'Although I\'m not Currently looking for any new opportunities, my inbox is always open. Whether you have a question or just want to say hi, I\'ll try my best to get back to you!',
       cta: 'Say Hello',
+      link: 'https://www.linkedin.com/in/anjjar',
     };
   },
 };
@@ -28,7 +29,6 @@ export default {
 
 <style lang="scss">
 .section {
-
   &.section__contact {
     text-align: center;
     display: flex;

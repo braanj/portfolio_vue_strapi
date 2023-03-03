@@ -3,29 +3,34 @@
     <h2 class="secondary__title section__counter">{{ title }}</h2>
     <div
       class="project__item"
-      v-for="(project, index) in projects"
+      v-for="(project, index) in projects?.data"
       :key="index"
       :class="{ right: index % 2 !== 0 }"
     >
       <div class="project__image">
-        <img :src="require(`@/assets/img/${project.thumbnail.url}`)" :alt="project.title">
+        <figure>
+          <img
+            :src="$baseUrl+project.attributes?.image.data.attributes.formats.thumbnail.url"
+            :alt="project.attributes?.title"
+          >
+        </figure>
       </div>
 
       <div class="project__details">
-        <span class="important__text">{{ project.subtitle }}</span>
-        <h3 class="project__title">{{ project.title }}</h3>
-        <p class="description__text" v-html="project.description"></p>
+        <span class="project__subtitle">{{ project.attributes?.subtitle }}</span>
+        <h3 class="project__title">{{ project.attributes?.title }}</h3>
+        <p class="description__text" v-html="project.attributes?.description"></p>
         <ul class="project__targets">
           <li
             class="target__item"
-            v-for="(target, index) in project.targets"
+            v-for="(target, index) in project.attributes?.targets"
             :key="index"
-          >{{ target }}</li>
+          >{{ target.name }}</li>
         </ul>
         <ul class="project__links">
           <li
             class="link__item"
-            v-for="(link, index) in project.links"
+            v-for="(link, index) in project.attributes?.links"
             :key="index"
           >
             <a :href="link.url" class="link">{{ link.name }}</a>
@@ -43,31 +48,38 @@ export default {
   data() {
     return {
       title: 'Some things I\'ve built',
-      projects: [
-        {
-          thumbnail: {
-            url: 'default.jpg',
-            alt: 'Project thumbnail',
-          },
-          title: 'Halcyon Theme',
-          subtitle: 'Featured project',
-          description: `
-          A minimal, dark blue theme for VS Code, Sublime Text, Atom, iTerm, and more. Available on <span class="important__text">Visual Studio Merketplace, Package Control, Atom Package Manager,</span> and <span class="important__text">npm.</span>
-          `,
-          targets: ['VS Code', 'Sublime Text', 'Atom', 'iTerm2', 'Hyper'],
-          links: [
-            {
-              name: 'Github',
-              url: 'https://github.com',
-            },
-            {
-              name: 'Live',
-              url: '#',
-            },
-          ],
-        },
-      ],
+      projects: [],
+      error: null,
+      headers: { 'Content-Type': 'application/json' },
     };
+  },
+
+  methods: {
+    parseJSON(resp) {
+      return (resp.json ? resp.json() : resp);
+    },
+
+    checkStatus(resp) {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+      return this.parseJSON(resp).then((_resp) => {
+        throw _resp;
+      });
+    },
+  },
+
+  async mounted() {
+    try {
+      const response = await fetch(`${this.$baseUrl}/api/projects?populate=*`, {
+        method: 'GET',
+        headers: this.headers,
+      }).then(this.checkStatus)
+        .then(this.parseJSON);
+      this.projects = response;
+    } catch (error) {
+      this.error = error;
+    }
   },
 };
 </script>
@@ -89,10 +101,11 @@ export default {
 
       .project__title {
         margin-top: .5rem;
-        font-size: var(--h3-font-size);
+        font-size: var(--h2-font-size);
       }
-      .important__text {
-        font-size: var(--small-font-size);
+      .project__subtitle {
+        font-size: var(--smaller-font-size);
+        color: var(--number-color);
       }
 
       .description__text {
@@ -109,14 +122,23 @@ export default {
         .link__item,
         .target__item {
           display: inline;
-          padding-right: .5rem;
-          font-size: var(--small-font-size);
+          padding-right: .75rem;
+          font-size: var(--smaller-font-size);
+          &:last-child {
+            padding-right: 0;
+          }
+        }
+        .target__item {
+          opacity: .6;
         }
       }
     }
 
     .project__image {
-      width: 60%;
+      min-width: 60%;
+      img {
+        width: 100%;
+      }
     }
 
     &.right {

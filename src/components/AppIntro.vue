@@ -1,11 +1,13 @@
 <template>
-  <section id="intro" class="section section__intro">
-    <span class="small__text">{{ intro.attributes.greating }}</span>
-    <h1 class="main__title">{{ intro.attributes.title }}</h1>
-    <h2 class="main__title subtitle">{{ intro.attributes.subtitle }}</h2>
-    <p class="description__text" v-html='intro.attributes.description'></p>
-    <a :href="intro.attributes.link" class="button">{{ intro.attributes.cta }}</a>
-  </section>
+  <transition name="slide-fade">
+    <section id="intro" class="section section__intro">
+      <span class="small__text">{{ intro.attributes.greating }}</span>
+      <h1 class="main__title">{{ intro.attributes.title }}</h1>
+      <h2 class="main__title subtitle">{{ intro.attributes.subtitle }}</h2>
+      <p class="description__text" v-html='intro.attributes.description'></p>
+      <a :href="intro.attributes.link" class="button">{{ intro.attributes.cta }}</a>
+    </section>
+  </transition>
 </template>
 
 <script>
@@ -39,7 +41,7 @@ export default {
 
   async mounted() {
     try {
-      const response = await fetch(`${process.env.VUE_APP_BACK_END_HOST}/api/intro`, {
+      const response = await fetch(`${this.$baseUrl}/api/intro`, {
         method: 'GET',
         headers: this.headers,
       }).then(this.checkStatus)

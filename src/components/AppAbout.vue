@@ -7,7 +7,7 @@
         <ul class="list__grid">
           <li
             class="list__grid-item"
-            v-for="(tech, index) in about.technologies.data"
+            v-for="(tech, index) in about?.technologies?.data"
             :key="index"
           >{{ tech.attributes.name }}</li>
         </ul>
@@ -16,8 +16,8 @@
       <div class="about__image">
         <figure>
           <img
-            :src="base_url+about.image.data.attributes.formats.thumbnail.url"
-            @error="$event.target.src=require(`@/assets/img/${image}`)"
+            v-if="about?.image?.data"
+            :src="$baseUrl+about.image.data.attributes.formats.thumbnail.url"
             :alt="about.image.data.attributes.alternativeText"
           >
         </figure>
@@ -32,8 +32,6 @@ export default {
   data() {
     return {
       about: [],
-      base_url: process.env.VUE_APP_BACK_END_HOST,
-      image: 'project.jpg', // Alternative image
       error: null,
       headers: { 'Content-Type': 'application/json' },
     };
@@ -56,11 +54,12 @@ export default {
 
   async mounted() {
     try {
-      const response = await fetch(`${this.base_url}/api/about?populate=*`, {
+      const response = await fetch(`${this.$baseUrl}/api/about?populate=*`, {
         method: 'GET',
         headers: this.headers,
       }).then(this.checkStatus)
         .then(this.parseJSON);
+
       this.about = response.data.attributes;
     } catch (error) {
       this.error = error;
