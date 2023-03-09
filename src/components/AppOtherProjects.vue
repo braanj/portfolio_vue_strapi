@@ -44,7 +44,6 @@
       </transition-group>
     </div>
     <div class="button__container">
-      <!-- Todo : Add show more functionnality -->
       <button
         class="button"
         v-if="projects && projects.meta && pageSize < projects.meta.pagination.total"
@@ -61,7 +60,7 @@ export default {
     return {
       title: 'Other Noteworthy Projects',
       subtitle: 'View the archive',
-      pageSize: 3,
+      pageSize: 6,
       projects: [],
       error: null,
       headers: { 'Content-Type': 'application/json' },

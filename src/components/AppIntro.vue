@@ -44,7 +44,8 @@ export default {
       const response = await fetch(`${this.$baseUrl}/api/intro`, {
         method: 'GET',
         headers: this.headers,
-      }).then(this.checkStatus)
+      })
+        .then(this.checkStatus)
         .then(this.parseJSON);
       this.intro = response.data;
     } catch (error) {

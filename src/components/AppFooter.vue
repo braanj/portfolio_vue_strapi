@@ -2,13 +2,17 @@
   <footer class="footer">
     <p class="copyright__text">{{ copyright }}</p>
     <div class="github__numbers">
-      <div
-        class="stars"
-        v-for="(credit, index) in credits"
-        :key="index"
-      >
-        <span v-html="credit.icon"></span>
-        {{ credit.number }}
+      <div class="stars">
+        <span>
+          <i class="uil uil-star"></i>
+          {{ stars_count }}
+        </span>
+      </div>
+      <div class="stars">
+        <span>
+          <i class="uil uil-code-branch"></i>
+          {{ forks_count }}
+        </span>
       </div>
     </div>
   </footer>
@@ -20,11 +24,46 @@ export default {
   data() {
     return {
       copyright: 'Designed & Built by Me',
-      credits: [
-        { icon: '<i class="uil uil-star"></i>', number: '522' },
-        { icon: '<i class="uil uil-code-branch"></i>', number: '522' },
-      ],
+      repos: [],
+      stars_count: 0,
+      forks_count: 0,
     };
+  },
+
+  methods: {
+    countReposNumbers() {
+      this.repos.forEach((rep) => {
+        this.stars_count += rep.stargazers_count;
+        this.forks_count += rep.forks_count;
+      });
+    },
+
+    parseJSON(resp) {
+      return (resp.json ? resp.json() : resp);
+    },
+
+    checkStatus(resp) {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+      return this.parseJSON(resp).then((_resp) => {
+        throw _resp;
+      });
+    },
+  },
+
+  async mounted() {
+    try {
+      const response = await fetch('https://api.github.com/users/braanj/repos', {
+        method: 'GET',
+      })
+        .then(this.checkStatus)
+        .then(this.parseJSON);
+      this.repos = response;
+      this.countReposNumbers();
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
 </script>

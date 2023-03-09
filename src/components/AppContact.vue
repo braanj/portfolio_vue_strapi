@@ -1,5 +1,8 @@
 <template>
   <section id="contact" class="section section__contact text-center">
+    <!--
+      Todo : Retrieve data from Strap
+    -->
     <span class="small__text section__counter">{{ subtitle }}</span>
     <h2 class="secondary__title">{{ title }}</h2>
 

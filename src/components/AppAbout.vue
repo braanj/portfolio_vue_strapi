@@ -1,13 +1,13 @@
 <template>
   <section id="about" class="section section__about">
-    <h2 class="secondary__title section__counter">{{ about.title }}</h2>
+    <h2 class="secondary__title section__counter">{{ data.title }}</h2>
     <div class="about__content">
       <div class="about__text">
-        <p class="description__text" v-html="about.description"></p>
+        <p class="description__text" v-html="data.description"></p>
         <ul class="list__grid">
           <li
             class="list__grid-item"
-            v-for="(tech, index) in about?.technologies?.data"
+            v-for="(tech, index) in data?.technologies?.data"
             :key="index"
           >{{ tech.attributes.name }}</li>
         </ul>
@@ -16,9 +16,9 @@
       <div class="about__image">
         <figure>
           <img
-            v-if="about?.image?.data"
-            :src="$baseUrl+about.image.data.attributes.formats.thumbnail.url"
-            :alt="about.image.data.attributes.alternativeText"
+            v-if="data?.image?.data"
+            :src="$baseUrl+data.image.data.attributes.formats.thumbnail.url"
+            :alt="data.image.data.attributes.alternativeText"
           >
         </figure>
       </div>
@@ -31,7 +31,7 @@ export default {
   name: 'AppAbout',
   data() {
     return {
-      about: [],
+      data: [],
       error: null,
       headers: { 'Content-Type': 'application/json' },
     };
@@ -60,7 +60,7 @@ export default {
       }).then(this.checkStatus)
         .then(this.parseJSON);
 
-      this.about = response.data.attributes;
+      this.data = response.data.attributes;
     } catch (error) {
       this.error = error;
     }

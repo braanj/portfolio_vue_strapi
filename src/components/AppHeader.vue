@@ -1,7 +1,7 @@
 <template>
   <header class="full__width page__header">
     <nav class="page__navigation">
-      <a :href="home" class="header__logo">
+      <a href="/" class="header__logo">
         <span>Homepage</span>
         <i class="uil uil-ninja"></i>
       </a>
@@ -32,7 +32,6 @@ export default {
   name: 'AppHeader',
   data() {
     return {
-      home: '/',
       mobile: false,
       links: [
         { href: '#about', text: 'About', hasCounter: true },

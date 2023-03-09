@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-
     <slot>
       <AppHeader />
       <AppIntro />
@@ -11,7 +10,6 @@
       <AppContact />
       <AppFooter />
     </slot>
-
   </div>
 </template>
 
