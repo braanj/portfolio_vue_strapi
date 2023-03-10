@@ -1,15 +1,10 @@
 <template>
   <section id="contact" class="section section__contact text-center">
-    <!--
-      Todo : Retrieve data from Strap
-    -->
-    <span class="small__text section__counter">{{ subtitle }}</span>
-    <h2 class="secondary__title">{{ title }}</h2>
-
-    <p class="description__text" v-html="description"></p>
-
+    <span class="small__text section__counter">{{ data.subtitle }}</span>
+    <h2 class="secondary__title">{{ data.title }}</h2>
+    <p class="description__text" v-html="data.description"></p>
     <div class="button__container">
-      <a :href="link" class="button">{{ cta }}</a>
+      <a :href="data.cta.link" class="button">{{ data.cta.text }}</a>
     </div>
   </section>
 </template>
@@ -20,12 +15,38 @@ export default {
 
   data() {
     return {
-      title: 'Get In Touch',
-      subtitle: 'What\'s Next?',
-      description: 'Although I\'m not Currently looking for any new opportunities, my inbox is always open. Whether you have a question or just want to say hi, I\'ll try my best to get back to you!',
-      cta: 'Say Hello',
-      link: 'https://www.linkedin.com/in/anjjar',
+      data: [],
+      error: null,
+      headers: { 'Content-Type': 'application/json' },
     };
+  },
+
+  methods: {
+    parseJSON(resp) {
+      return (resp.json ? resp.json() : resp);
+    },
+
+    checkStatus(resp) {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+      return this.parseJSON(resp).then((_resp) => {
+        throw _resp;
+      });
+    },
+  },
+
+  async mounted() {
+    try {
+      const response = await fetch(`${this.$baseUrl}/api/contact?populate=*`, {
+        method: 'GET',
+        headers: this.headers,
+      }).then(this.checkStatus)
+        .then(this.parseJSON);
+      this.data = response.data.attributes;
+    } catch (error) {
+      this.error = error;
+    }
   },
 };
 </script>

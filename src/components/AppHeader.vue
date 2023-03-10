@@ -2,8 +2,10 @@
   <header class="full__width page__header">
     <nav class="page__navigation">
       <a href="/" class="header__logo">
-        <span>Homepage</span>
-        <i class="uil uil-ninja"></i>
+        <img
+          :src="$baseUrl + logo?.attributes?.image.data.attributes.formats.thumbnail.url"
+          :alt="logo.attributes?.title"
+        >
       </a>
 
       <button @click="toggler" class="burger" :class="{ active: mobile }">
@@ -22,7 +24,6 @@
           >{{ link.text }}</a>
         </li>
       </ul>
-
     </nav>
   </header>
 </template>
@@ -33,6 +34,8 @@ export default {
   data() {
     return {
       mobile: false,
+
+      logo: [],
       links: [
         { href: '#about', text: 'About', hasCounter: true },
         { href: '#experience', text: 'Experience', hasCounter: true },
@@ -42,6 +45,9 @@ export default {
           href: '#resume', text: 'Resume', hasCounter: false, isButton: true,
         },
       ],
+
+      error: null,
+      headers: { 'Content-Type': 'application/json' },
     };
   },
 
@@ -49,6 +55,32 @@ export default {
     toggler() {
       this.mobile = !this.mobile;
     },
+
+    parseJSON(resp) {
+      return (resp.json ? resp.json() : resp);
+    },
+
+    checkStatus(resp) {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+      return this.parseJSON(resp).then((_resp) => {
+        throw _resp;
+      });
+    },
+  },
+
+  async mounted() {
+    try {
+      const response = await fetch(`${this.$baseUrl}/api/logo`, {
+        method: 'GET',
+        headers: this.headers,
+      }).then(this.checkStatus)
+        .then(this.parseJSON);
+      this.logo = response;
+    } catch (error) {
+      this.error = error;
+    }
   },
 };
 </script>
